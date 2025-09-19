@@ -2,8 +2,9 @@ package com.pibic.floodfill;
 
 import java.util.LinkedList;
 
+// LIFO
 public class Pilha<T> {
-    private LinkedList<T> lista = new LinkedList<>();
+    private final LinkedList<T> lista = new LinkedList<>();
 
     public void push(T item) {
         lista.addFirst(item);

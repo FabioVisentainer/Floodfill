@@ -2,8 +2,9 @@ package com.pibic.floodfill;
 
 import java.util.LinkedList;
 
+// FIFO
 public class Fila<T> {
-    private LinkedList<T> lista = new LinkedList<>();
+    private final LinkedList<T> lista = new LinkedList<>();
 
     public void enqueue(T item) {
         lista.addLast(item);
