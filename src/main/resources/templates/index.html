@@ -1,112 +1,137 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Flood Fill</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(to right, #f0f4f8, #d9e2ec);
-            min-height: 100vh;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <title>Flood Fill</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body {
+                background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+                min-height: 100vh;
+            }
 
-        header {
-            background-color: #007bff;
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            margin-bottom: 30px;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+            header {
+                background-color: #007bff;
+                color: white;
+                padding: 20px 0;
+                text-align: center;
+                margin-bottom: 30px;
+                border-radius: 0 0 15px 15px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
 
-        .img-card {
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            padding: 15px;
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+            .img-card {
+                border: 1px solid #dee2e6;
+                border-radius: 10px;
+                padding: 15px;
+                background-color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                text-align: center;
+            }
 
-        .img-card img {
-            width: 400px;
-            height: 300px;
-            object-fit: contain;
-            cursor: crosshair;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+            .img-card img {
+                width: 400px;
+                height: 300px;
+                object-fit: contain;
+                cursor: crosshair;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
 
-        .btn-group-custom button {
-            min-width: 100px;
-        }
+            .btn-group-custom button {
+                min-width: 100px;
+            }
 
-        h5 {
-            margin-bottom: 15px;
-        }
-    </style>
-</head>
-<body>
-<header>
-    <h1>Flood Fill</h1>
-    <p>Clique na imagem para preencher a área</p>
-</header>
+            h5 {
+                margin-bottom: 15px;
+            }
 
-<div class="container">
-    <div class="row mb-4 g-4">
-        <div class="col-md-6">
-            <div class="img-card">
-                <h5>Imagem Original</h5>
-                <img id="sourceImage" src="/Circulos800x600.png" alt="Imagem para preencher">
+            .method-buttons button.active {
+                background-color: #007bff;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Flood Fill</h1>
+            <p>Clique na imagem para preencher a área</p>
+        </header>
+
+        <div class="container">
+            <div class="row mb-4 g-4">
+                <div class="col-md-6">
+                    <div class="img-card">
+                        <h5>Imagem Original</h5>
+                        <img id="sourceImage" src="/Circulos800x600.png" alt="Imagem para preencher">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="img-card">
+                        <h5>Resultado</h5>
+                        <div id="result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mb-3">
+                <label class="form-label fw-bold">Escolha uma imagem:</label>
+                <div class="d-flex justify-content-center gap-3 mt-2 btn-group-custom flex-wrap">
+                    <button class="btn btn-outline-primary" data-img="Circulos800x600.png">Círculos</button>
+                    <button class="btn btn-outline-primary" data-img="Linha800x600.png">Linha</button>
+                    <button class="btn btn-outline-primary" data-img="Quadrado800x600.png">Quadrado</button>
+                </div>
+            </div>
+
+            <div class="text-center mb-4">
+                <label class="form-label fw-bold">Escolha o método:</label>
+                <div class="d-flex justify-content-center gap-3 mt-2 method-buttons">
+                    <button class="btn btn-outline-secondary active" data-method="dfs">Pilha (DFS)</button>
+                    <button class="btn btn-outline-secondary" data-method="bfs">Fila (BFS)</button>
+                </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="img-card">
-                <h5>Resultado</h5>
-                <div id="result"></div>
-            </div>
-        </div>
-    </div>
 
-    <div class="text-center">
-        <label class="form-label fw-bold">Escolha uma imagem:</label>
-        <div class="d-flex justify-content-center gap-3 mt-2 btn-group-custom flex-wrap">
-            <button class="btn btn-outline-primary" data-img="Circulos800x600.png">Círculos</button>
-            <button class="btn btn-outline-primary" data-img="Linha800x600.png">Linha</button>
-            <button class="btn btn-outline-primary" data-img="Quadrado800x600.png">Quadrado</button>
-        </div>
-    </div>
-</div>
+        <script>
+            const img = document.getElementById("sourceImage");
+            const result = document.getElementById("result");
+            let method = "dfs"; // padrão Pilha
 
-<script>
-    const img = document.getElementById("sourceImage");
-    const result = document.getElementById("result");
-
-    document.querySelectorAll("button[data-img]").forEach(btn => {
-        btn.addEventListener("click", () => {
-            img.src = "/" + btn.dataset.img;
-            result.innerHTML = "";
-        });
-    });
-
-    img.addEventListener("click", function(e) {
-        const rect = img.getBoundingClientRect();
-        const scaleX = img.naturalWidth / rect.width;
-        const scaleY = img.naturalHeight / rect.height;
-
-        const x = Math.floor((e.clientX - rect.left) * scaleX);
-        const y = Math.floor((e.clientY - rect.top) * scaleY);
-
-        fetch("/fill?imageName=" + img.src.split("/").pop() + "&x=" + x + "&y=" + y, {
-            method: "POST"
-        })
-            .then(res => res.blob())
-            .then(blob => {
-                const url = URL.createObjectURL(blob);
-                result.innerHTML = "<img src='" + url + "'>";
+            // Trocar imagem
+            document.querySelectorAll("button[data-img]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    img.src = "/" + btn.dataset.img;
+                    result.innerHTML = "";
+                });
             });
-    });
-</script>
-</body>
+
+            //(Pilha / Fila)
+            document.querySelectorAll(".method-buttons button").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    method = btn.dataset.method;
+                    document.querySelectorAll(".method-buttons button").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                });
+            });
+
+            // imagem
+            img.addEventListener("click", function(e) {
+                const rect = img.getBoundingClientRect();
+                const scaleX = img.naturalWidth / rect.width;
+                const scaleY = img.naturalHeight / rect.height;
+
+                const x = Math.floor((e.clientX - rect.left) * scaleX);
+                const y = Math.floor((e.clientY - rect.top) * scaleY);
+
+                fetch(`/fill?imageName=${img.src.split("/").pop()}&x=${x}&y=${y}&method=${method}`, {
+                    method: "POST"
+                })
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        result.innerHTML = `<img src='${url}'>`;
+                    });
+            });
+        </script>
+    </body>
 </html>
